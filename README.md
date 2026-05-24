@@ -2,15 +2,15 @@
 
 Automatically match candidate resumes to job descriptions (JDs) using classical machine learning models, with easy web-based access for predictions and metrics.
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue) ![Flask](https://img.shields.io/badge/Flask-web-lightgrey) ![ML](https://img.shields.io/badge/ML-scikit--learn-yellow) ![License](https://img.shields.io/badge/license-MIT-green)
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue) ![Flask](https://img.shields.io/badge/Flask-web-lightgrey) ![ML](https://img.shields.io/badge/ML-scikit--learn-yellow)
 
 ---
 
-## 🚩 Problem
+## Problem
 
 Screening resumes for the right job fit is tedious and error-prone if done manually. The JD Resume Matcher automates this by leveraging machine learning models to predict candidate fit, helping streamline recruitment pipelines.
 
-## 🏗️ Solution Features
+## Solution Features
 
 - Multiple ML classifiers: Logistic Regression, Naive Bayes, KNN, Decision Tree
 - Ensemble models (Voting, Bagging) for improved prediction
@@ -18,14 +18,14 @@ Screening resumes for the right job fit is tedious and error-prone if done manua
 - Simple HTML frontend to demo predictions
 - Model metrics tracking and serving
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Languages:** Python (main), Jupyter Notebook (experimentation), HTML (frontend)
-- **ML/Data:** scikit-learn, pandas, numpy
-- **Web:** Flask, pyngrok (for tunneling/public links)
-- **Frontend:** `jd_resume_matcher_pro.html` (calls backend API)
+- Languages: Python (main), Jupyter Notebook (experimentation), HTML (frontend)
+- ML/Data: scikit-learn, pandas, numpy
+- Web: Flask, pyngrok (for tunneling/public links)
+- Frontend: `jd_resume_matcher_pro.html` (calls backend API)
 
-## 🚀 Usage
+## Usage
 
 ### 1. Train & Evaluate Models
 
@@ -52,7 +52,7 @@ Edit `jd_resume_matcher_pro.html` to point to your backend’s `/predict` endpoi
 
 ---
 
-## 🔗 API Reference
+## API Reference
 
 - `GET /health` – Check server status
 - `POST /predict` – Predict match
@@ -71,40 +71,28 @@ Edit `jd_resume_matcher_pro.html` to point to your backend’s `/predict` endpoi
 
 ---
 
-## 📊 Metrics & Model Selection
+## Metrics & Model Selection
 
 After training, metrics such as accuracy, precision, recall and F1 for all models are available at `/metrics`. The best ensemble (“Voting” or “Bagging”) can be used for highest accuracy predictions.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 - `JD_Resume_Matcher_ML_Updated.ipynb` — Notebook for data prep and model training
 - `flask_backend_code.py` — Flask app serving predictions and metrics
 - `jd_resume_matcher_pro.html` — Minimal frontend UI
-- (Optional): Add a `requirements.txt` and `Procfile` for deployment
+- Add a `requirements.txt` and `Procfile` for deployment
 
 ---
 
-## 📝 Next Steps
+## Next Steps
 
 - Replace metric placeholders with your own metrics after training
 - Create a GitHub Actions CI for automated checks/linting
 - Add unit tests for model/endpoint code (`pytest` or similar)
-- [Optional] Dockerize the backend for easy deployment
+- Dockerize the backend for easy deployment
 
 ---
 
-## 🤝 Contributing
-
-Feel free to open issues or pull requests for improvements. PRs with refactoring, documentation, and new model additions are welcome!
-
----
-
-## 📜 License
-
-MIT License
-
----
-
-> _JD Resume Matcher – Quickly find the best-fit candidates for your jobs, every time._
+> JD Resume Matcher – Quickly find the best-fit candidates for your jobs, every time.
