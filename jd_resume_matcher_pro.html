@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>JD Resume Matcher Pro — ML Classification Engine</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #6366f1;
+    --primary-light: #818cf8;
+    --primary-dark: #4f46e5;
+    --success: #10b981;
+    --success-light: #6ee7b7;
+    --error: #ef4444;
+    --error-light: #fca5a5;
+    --warning: #f59e0b;
+    --bg-dark: #0f172a;
+    --bg-light: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --text-light: #cbd5e1;
+    --border: #e2e8f0;
+    --accent-1: #ec4899;
+    --accent-2: #06b6d4;
+    --accent-3: #8b5cf6;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header Navigation ─────────────────── */
+  header {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(225, 232, 240, 0.1);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .nav-badge {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary-light);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── Hero Section ──────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+    border-bottom: 1px solid rgba(225, 232, 240, 0.1);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #f1f5f9;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--text-light);
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+  }
+  .pill-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-light);
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .pill:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+
+  /* ── Main Container ────────────────────── */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* ── Section Headers ──────────────────── */
+  .section-header {
+    margin-bottom: 1.5rem;
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 4px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-light);
+  }
+
+  /* ── Model Grid Selector ─────────────── */
+  .models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 2.5rem;
+  }
+  .model-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .model-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .model-card:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.08);
+    transform: translateY(-2px);
+  }
+  .model-card.selected {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-color: var(--primary-light);
+    color: #fff;
+  }
+  .mc-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+  .model-card.selected .mc-badge { color: rgba(255, 255, 255, 0.9); }
+  .mc-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #f1f5f9;
+  }
+  .model-card.selected .mc-name { color: #fff; }
+  .mc-desc {
+    font-size: 11px;
+    color: var(--text-light);
+    line-height: 1.4;
+  }
+  .model-card.selected .mc-desc { color: rgba(255, 255, 255, 0.8); }
+
+  /* ── Config Bar ────────────────────────── */
+  .config-bar {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(225, 232, 240, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(10px);
+  }
+  .config-bar label {
+    font-size: 12px;
+    color: var(--text-light);
+    white-space: nowrap;
+  }
+  .config-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #f1f5f9;
+    font-size: 13px;
+  }
+  .config-bar input::placeholder { color: rgba(203, 213, 225, 0.5); }
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(148, 163, 184, 0.6);
+    animation: pulse 2s infinite;
+  }
+  .status-dot.ok { background: var(--success); animation: pulse-ok 2s infinite; }
+  .status-dot.err { background: var(--error); }
+  @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+  @keyframes pulse-ok { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+  .status-text {
+    font-size: 11px;
+    color: var(--text-light);
+  }
+
+  /* ── Input Panels ──────────────────────── */
+  .panels-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    .panels-grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(225, 232, 240, 0.1);
+    border-radius: 14px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+  .panel-header {
+    padding: 16px;
+    border-bottom: 1px solid rgba(225, 232, 240, 0.05);
+  }
+  .panel-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  .panel-subtitle {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+  .tab-container {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(225, 232, 240, 0.05);
+    padding: 0 16px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .tab.active {
+    color: var(--primary-light);
+    border-bottom-color: var(--primary);
+  }
+  .tab-pane {
+    display: none;
+    padding: 16px;
+  }
+  .tab-pane.active { display: block; }
+
+  textarea {
+    width: 100%;
+    height: 220px;
+    resize: vertical;
+    border: 1px solid rgba(225, 232, 240, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+    background: rgba(15, 23, 42, 0.5);
+    color: #f1f5f9;
+    font-size: 13px;
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;
+    transition: all 0.2s;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(15, 23, 42, 0.8);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+  textarea::placeholder { color: rgba(203, 213, 225, 0.4); }
+
+  .upload-zone {
+    border: 2px dashed rgba(99, 102, 241, 0.3);
+    border-radius: 10px;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(99, 102, 241, 0.05);
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .upload-zone:hover {
+    border-color: var(--primary);
+    background: rgba(99, 102, 241, 0.1);
+  }
+  .upload-zone.dragover {
+    border-color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.15);
+  }
+  .upload-icon {
+    font-size: 32px;
+    color: var(--primary);
+  }
+  .upload-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  .upload-sub {
+    font-size: 12px;
+    color: var(--text-light);
+  }
+  .upload-zone input[type=file] { display: none; }
+  .file-chosen {
+    font-size: 12px;
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 6px 12px;
+    border-radius: 99px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  /* ── Action Buttons ────────────────────── */
+  .action-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-predict {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: #fff;
+  }
+  .btn-predict:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  }
+  .btn-predict:active { transform: translateY(0); }
+  .btn-predict:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .btn-clear {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-light);
+    border: 1px solid rgba(225, 232, 240, 0.2);
+  }
+  .btn-clear:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #f1f5f9;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Results Section ──────────────────── */
+  .result-area {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .verdict-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid;
+    border-radius: 14px;
+    padding: 2rem;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  .verdict-card.match {
+    border-color: var(--success);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+  }
+  .verdict-card.no-match {
+    border-color: var(--error);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+  }
+  .verdict-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .verdict-card.match .verdict-icon {
+    background: linear-gradient(135deg, var(--success), var(--success-light));
+    color: #fff;
+  }
+  .verdict-card.no-match .verdict-icon {
+    background: linear-gradient(135deg, var(--error), var(--error-light));
+    color: #fff;
+  }
+  .verdict-body h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .verdict-card.match h2 { color: var(--success); }
+  .verdict-card.no-match h2 { color: var(--error); }
+  .verdict-body p {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+  .verdict-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary-light);
+    font-weight: 600;
+  }
+
+  /* ── Score Display ──────────────────── */
+  .score-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(225, 232, 240, 0.1);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .score-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-light);
+  }
+  .score-value {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .score-bar {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 1px solid rgba(225, 232, 240, 0.1);
+  }
+  .score-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: linear-gradient(90deg, var(--primary), var(--accent-2));
+  }
+  .score-note {
+    font-size: 11px;
+    color: var(--text-light);
+  }
+
+  /* ── Model Metrics Table ────────────────── */
+  .metrics-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(225, 232, 240, 0.1);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+  }
+  .metrics-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin-bottom: 1rem;
+  }
+  .metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .metrics-table thead {
+    border-bottom: 2px solid rgba(225, 232, 240, 0.15);
+  }
+  .metrics-table th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .metrics-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(225, 232, 240, 0.08);
+    font-size: 13px;
+    color: #f1f5f9;
+  }
+  .metrics-table tbody tr {
+    transition: background 0.2s;
+  }
+  .metrics-table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.05);
+  }
+  .model-name {
+    font-weight: 600;
+    color: var(--primary-light);
+  }
+  .model-badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary-light);
+    margin-left: 6px;
+    font-weight: 600;
+  }
+  .metric-value {
+    font-weight: 600;
+  }
+  .metric-value.high { color: var(--success); }
+  .metric-value.medium { color: var(--warning); }
+  .metric-value.low { color: var(--error); }
+  .best-marker {
+    background: linear-gradient(135deg, var(--success), var(--success-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+  }
+
+  /* ── Ensemble Showcase ──────────────────── */
+  .ensemble-showcase {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    border-radius: 14px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .ensemble-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(139, 92, 246, 0.8);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .ensemble-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: #f1f5f9;
+    margin-bottom: 8px;
+  }
+  .ensemble-desc {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+  }
+  .ensemble-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  .stat-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: rgba(139, 92, 246, 1);
+  }
+
+  /* ── Error Message ───────────────────── */
+  .error-message {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--error-light);
+    font-size: 13px;
+    margin-bottom: 1rem;
+  }
+
+  /* ── Footer ────────────────────────── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid rgba(225, 232, 240, 0.1);
+    font-size: 12px;
+    color: var(--text-light);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="logo">🔍 JD Resume Matcher Pro</div>
+    <span class="nav-badge">ML Engine v2.0</span>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Match Resumes to Jobs in Seconds</h1>
+  <p>AI-powered binary classification engine. Built entirely from scratch—6 ML models, ensemble voting, and real-time predictions.</p>
+  <div class="pill-group">
+    <span class="pill">🤖 6 Models</span>
+    <span class="pill">📊 Metrics Tracked</span>
+    <span class="pill">🎯 Ensemble Voting</span>
+    <span class="pill">⚡ Real-time Results</span>
+    <span class="pill">🔬 From Scratch (No sklearn)</span>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- Model Selector -->
+  <div class="section-header">
+    <div class="section-title">1. Choose Your Model</div>
+    <div class="section-desc">Pick which ML algorithm to use for this prediction. Each has strengths and tradeoffs.</div>
+  </div>
+  <div class="models-grid" id="model-grid">
+    <!-- Models inserted by JavaScript -->
+  </div>
+
+  <!-- Backend Config -->
+  <div class="section-header">
+    <div class="section-title">2. Connect to Backend</div>
+    <div class="section-desc">Paste your Google Colab ngrok URL to establish connection.</div>
+  </div>
+  <div class="config-bar">
+    <label>🔗 Colab URL</label>
+    <input type="text" id="backend-url" placeholder="https://xxxx-xxxx.ngrok-free.app"/>
+    <div class="status-indicator">
+      <div class="status-dot" id="status-dot"></div>
+      <span class="status-text" id="status-text">not connected</span>
+    </div>
+  </div>
+
+  <!-- Input Panels -->
+  <div class="section-header">
+    <div class="section-title">3. Provide Documents</div>
+    <div class="section-desc">Paste text or upload files (supports .txt, .pdf, .doc, .docx).</div>
+  </div>
+  <div class="panels-grid">
+    <!-- JD Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 Job Description</div>
+        <div class="panel-subtitle">What requirements define the role?</div>
+      </div>
+      <div class="tab-container">
+        <button class="tab active" onclick="switchTab('jd', 'paste', this)">Paste Text</button>
+        <button class="tab" onclick="switchTab('jd', 'upload', this)">Upload File</button>
+      </div>
+      <div class="tab-pane active" id="jd-paste">
+        <textarea id="jd-text" placeholder="Paste job description here...&#10;&#10;Example: Python Developer with 3+ years Django, Flask, REST APIs, PostgreSQL, Docker, Git..."></textarea>
+      </div>
+      <div class="tab-pane" id="jd-upload">
+        <div class="upload-zone" id="jd-zone" ondragover="handleDrag(event,'jd-zone')" ondragleave="handleDragLeave('jd-zone')" ondrop="handleDrop(event,'jd')" onclick="document.getElementById('jd-file').click()">
+          <input type="file" id="jd-file" accept=".txt,.pdf,.doc,.docx" onchange="handleFile(event,'jd')"/>
+          <div class="upload-icon">📤</div>
+          <div class="upload-title">Click or drag files here</div>
+          <div class="upload-sub">Supports .txt, .pdf, .doc, .docx</div>
+          <div id="jd-file-name"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resume Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📄 Resume</div>
+        <div class="panel-subtitle">Candidate's background and skills</div>
+      </div>
+      <div class="tab-container">
+        <button class="tab active" onclick="switchTab('resume', 'paste', this)">Paste Text</button>
+        <button class="tab" onclick="switchTab('resume', 'upload', this)">Upload File</button>
+      </div>
+      <div class="tab-pane active" id="resume-paste">
+        <textarea id="resume-text" placeholder="Paste resume here...&#10;&#10;Example: Experienced Python developer, 3 years backend. Django, Flask, REST APIs, PostgreSQL, Docker, Git..."></textarea>
+      </div>
+      <div class="tab-pane" id="resume-upload">
+        <div class="upload-zone" id="resume-zone" ondragover="handleDrag(event,'resume-zone')" ondragleave="handleDragLeave('resume-zone')" ondrop="handleDrop(event,'resume')" onclick="document.getElementById('resume-file').click()">
+          <input type="file" id="resume-file" accept=".txt,.pdf,.doc,.docx" onchange="handleFile(event,'resume')"/>
+          <div class="upload-icon">📤</div>
+          <div class="upload-title">Click or drag files here</div>
+          <div class="upload-sub">Supports .txt, .pdf, .doc, .docx</div>
+          <div id="resume-file-name"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-row">
+    <button class="btn btn-predict" id="predict-btn" onclick="predict()">
+      <span>🚀</span>
+      <span>Run Prediction</span>
+    </button>
+    <button class="btn btn-clear" onclick="clearAll()">Clear All</button>
+  </div>
+
+  <!-- Results -->
+  <div class="result-area" id="result-area"></div>
+
+</div>
+
+<footer>
+  JD Resume Matcher Pro &nbsp;·&nbsp; Built from scratch (NumPy, Pandas, Math, Regex) &nbsp;·&nbsp; 6 ML Models &nbsp;·&nbsp; 2 Ensemble Methods
+</footer>
+
+<script>
+const MODELS_INFO = {
+  lr: { name: 'Logistic Regression', desc: 'Linear boundary. Fastest training. Best single model.', type: 'Base Model', emoji: '📈' },
+  nb: { name: 'Naive Bayes', desc: 'Probabilistic. Fast inference. Assumes independence.', type: 'Base Model', emoji: '🎲' },
+  knn: { name: 'K-Nearest Neighbors', desc: 'Cosine similarity. No training. Slow on large datasets.', type: 'Base Model', emoji: '🔍' },
+  dt: { name: 'Decision Tree', desc: 'Entropy-based splits. Explainable. Prone to overfitting.', type: 'Base Model', emoji: '🌳' },
+  voting: { name: 'Voting Ensemble', desc: 'All 4 models vote. Majority wins. Reduces errors.', type: 'Ensemble', emoji: '🗳️' },
+  bagging: { name: 'Bagging Ensemble', desc: '5 trees on bootstrap samples. Low variance. Reliable.', type: 'Ensemble', emoji: '📦' },
+};
+
+let selectedModel = 'lr';
+let fileTexts = { jd: '', resume: '' };
+
+// Populate model grid
+document.addEventListener('DOMContentLoaded', () => {
+  const grid = document.getElementById('model-grid');
+  Object.entries(MODELS_INFO).forEach(([key, info]) => {
+    const card = document.createElement('div');
+    card.className = 'model-card' + (key === 'lr' ? ' selected' : '');
+    card.onclick = () => selectModel(key, card);
+    card.innerHTML = `
+      <div style="font-size:20px;margin-bottom:6px;">${info.emoji}</div>
+      <div class="mc-badge">${info.type}</div>
+      <div class="mc-name">${info.name}</div>
+      <div class="mc-desc">${info.desc}</div>
+    `;
+    grid.appendChild(card);
+  });
+});
+
+function selectModel(model, el) {
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedModel = model;
+}
+
+function switchTab(panel, tab, btn) {
+  const pPrefix = panel + '-';
+  document.querySelectorAll('#' + pPrefix + 'paste, #' + pPrefix + 'upload').forEach(p => p.classList.remove('active'));
+  document.getElementById(pPrefix + tab).classList.add('active');
+  btn.parentElement.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function handleDrag(e, zoneId) {
+  e.preventDefault();
+  document.getElementById(zoneId).classList.add('dragover');
+}
+function handleDragLeave(zoneId) {
+  document.getElementById(zoneId).classList.remove('dragover');
+}
+function handleDrop(e, panel) {
+  e.preventDefault();
+  document.getElementById(panel + '-zone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const fakeEvent = { target: { files: [file] } };
+  handleFile(fakeEvent, panel);
+}
+
+function handleFile(e, panel) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const nameEl = document.getElementById(panel + '-file-name');
+  nameEl.innerHTML = '<div class="file-chosen">✓ ' + file.name + '</div>';
+  if (file.name.endsWith('.txt')) {
+    const reader = new FileReader();
+    reader.onload = ev => { fileTexts[panel] = ev.target.result; };
+    reader.readAsText(file);
+  } else {
+    fileTexts[panel] = '[File: ' + file.name + ' — requires backend PDF/DOCX support]';
+  }
+}
+
+function getInputText(panel) {
+  const textarea = document.getElementById(panel + '-text');
+  const val = textarea ? textarea.value.trim() : '';
+  return val || fileTexts[panel] || '';
+}
+
+function clearAll() {
+  document.getElementById('jd-text').value = '';
+  document.getElementById('resume-text').value = '';
+  fileTexts = { jd: '', resume: '' };
+  document.getElementById('jd-file-name').innerHTML = '';
+  document.getElementById('resume-file-name').innerHTML = '';
+  document.getElementById('result-area').style.display = 'none';
+}
+
+async function predict() {
+  const base = normalizeBackendUrl(document.getElementById('backend-url').value);
+  const jd = getInputText('jd');
+  const resume = getInputText('resume');
+  const btn = document.getElementById('predict-btn');
+  const area = document.getElementById('result-area');
+
+  if (!base) {
+    showError('❌ Paste your Colab ngrok URL in the backend URL field.');
+    return;
+  }
+  if (!jd) {
+    showError('❌ Provide a Job Description (paste or upload .txt file).');
+    return;
+  }
+  if (!resume) {
+    showError('❌ Provide a Resume (paste or upload .txt file).');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Running model...';
+  area.style.display = 'block';
+  area.innerHTML = '<div style="padding:1rem;color:var(--text-light);font-size:13px">Sending to Colab backend...</div>';
+
+  try {
+    const resp = await fetch(base + '/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
+      body: JSON.stringify({ resume, jd, model: selectedModel }),
+      signal: AbortSignal.timeout(40000)
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: 'Server error ' + resp.status }));
+      throw new Error(err.error || 'HTTP ' + resp.status);
+    }
+    renderResult(await resp.json());
+  } catch (err) {
+    showError('❌ Backend unreachable: ' + (err.message || 'Unknown error') + '. Check Colab is running and URL is correct.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Run Prediction';
+  }
+}
+
+function renderResult(data) {
+  const isMatch = data.verdict === 'MATCH';
+  const info = MODELS_INFO[selectedModel];
+  const area = document.getElementById('result-area');
+  const predictions = data.model_predictions || data.votes || null;
+  const finalResult = data.final_result || null;
+
+  let html = '';
+
+  // Verdict card
+  html += `
+    <div class="verdict-card ${isMatch ? 'match' : 'no-match'}">
+      <div class="verdict-icon">${isMatch ? '✓' : '✗'}</div>
+      <div class="verdict-body">
+        <h2>${data.verdict}</h2>
+        <p>${isMatch ? '✓ Strong match between resume and job description.' : '✗ Resume does not match the requirements.'}</p>
+        <span class="verdict-tag">${info.type} • ${info.name}</span>
+      </div>
+    </div>
+  `;
+
+  // Score
+  const score = data.score || (isMatch ? 78 : 25);
+  html += `
+    <div class="score-card">
+      <div class="score-header">
+        <span class="score-title">Match Confidence</span>
+        <span class="score-value">${score}%</span>
+      </div>
+      <div class="score-bar">
+        <div class="score-fill" style="width: 0%; ${isMatch ? 'background: linear-gradient(90deg, var(--success), var(--success-light));' : 'background: linear-gradient(90deg, var(--error), var(--error-light));'}" id="bar-fill"></div>
+      </div>
+      <div class="score-note">${score === 100 ? '💯 Definite match!' : score >= 70 ? '📈 Strong alignment detected.' : score >= 40 ? '⚠️ Partial overlap in skills.' : '📉 Limited relevance.'}</div>
+    </div>
+  `;
+
+  if (predictions) {
+    html += `
+      <div class="metrics-section">
+        <div class="metrics-title">🧠 Current Input Predictions</div>
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Prediction</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    Object.entries(predictions).forEach(([modelName, value]) => {
+      const label = value === 1 ? 'MATCH' : 'NO MATCH';
+      html += `
+        <tr>
+          <td><span class="model-name">${modelName}</span></td>
+          <td><span class="metric-value ${value === 1 ? 'high' : 'low'}">${label}</span></td>
+        </tr>
+      `;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  if (finalResult) {
+    html += `
+      <div class="ensemble-showcase">
+        <div class="ensemble-label">🎯 Final Result</div>
+        <div class="ensemble-name">${finalResult.model}</div>
+        <div class="ensemble-desc">${finalResult.verdict} • ${finalResult.predicted_label === 1 ? 'MATCH' : 'NO MATCH'}</div>
+        <div class="ensemble-stats">
+          <div class="stat-box">
+            <div class="stat-label">Verdict</div>
+            <div class="stat-value">${finalResult.verdict}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Score</div>
+            <div class="stat-value">${finalResult.score}%</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // All models metrics (if available)
+  if (data.all_models_metrics) {
+    html += `
+      <div class="metrics-section">
+        <div class="metrics-title">📊 All Models Performance</div>
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1 Score</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+    
+    let bestF1 = 0;
+    let bestModel = '';
+    
+    Object.entries(data.all_models_metrics).forEach(([modelName, metrics]) => {
+      const f1 = metrics.f1_score || 0;
+      if (f1 > bestF1) {
+        bestF1 = f1;
+        bestModel = modelName;
+      }
+      const getClass = (val) => val >= 85 ? 'high' : val >= 70 ? 'medium' : 'low';
+      const isBest = modelName === bestModel ? ' best-marker' : '';
+      html += `
+        <tr>
+          <td><span class="model-name">${modelName}</span><span class="model-badge">${MODELS_INFO[modelName.toLowerCase()] ? MODELS_INFO[modelName.toLowerCase()].type : 'Model'}</span></td>
+          <td><span class="metric-value ${getClass(metrics.accuracy || 0)}${isBest}">${(metrics.accuracy || 0).toFixed(1)}%</span></td>
+          <td><span class="metric-value ${getClass(metrics.precision || 0)}">${(metrics.precision || 0).toFixed(1)}%</span></td>
+          <td><span class="metric-value ${getClass(metrics.recall || 0)}">${(metrics.recall || 0).toFixed(1)}%</span></td>
+          <td><span class="metric-value ${getClass(metrics.f1_score || 0)}${isBest}">${(metrics.f1_score || 0).toFixed(1)}%</span></td>
+        </tr>
+      `;
+    });
+    
+    html += `</tbody></table></div>`;
+  }
+
+  // Best ensemble showcase
+  if (data.best_ensemble) {
+    html += `
+      <div class="ensemble-showcase">
+        <div class="ensemble-label">🏆 Best Performer</div>
+        <div class="ensemble-name">${data.best_ensemble.name}</div>
+        <div class="ensemble-desc">${data.best_ensemble.description}</div>
+        <div class="ensemble-stats">
+          <div class="stat-box">
+            <div class="stat-label">F1 Score</div>
+            <div class="stat-value">${(data.best_ensemble.f1_score || 0).toFixed(1)}%</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value">${(data.best_ensemble.accuracy || 0).toFixed(1)}%</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Precision</div>
+            <div class="stat-value">${(data.best_ensemble.precision || 0).toFixed(1)}%</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Recall</div>
+            <div class="stat-value">${(data.best_ensemble.recall || 0).toFixed(1)}%</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  area.innerHTML = html;
+  
+  // Animate score bar
+  setTimeout(() => {
+    const bar = document.getElementById('bar-fill');
+    if (bar) bar.style.width = score + '%';
+  }, 50);
+}
+
+function showError(msg) {
+  const area = document.getElementById('result-area');
+  area.style.display = 'block';
+  area.innerHTML = `<div class="error-message">${msg}</div>`;
+}
+
+// Health check
+const urlInput = document.getElementById('backend-url');
+const dot = document.getElementById('status-dot');
+const statusText = document.getElementById('status-text');
+let checkTimer = null;
+
+function normalizeBackendUrl(raw) {
+  const text = (raw || '').trim();
+  if (!text) return '';
+
+  // Accept pasted lines like: NgrokTunnel: "https://xxxx.ngrok-free.dev" -> "http://localhost:5000"
+  const match = text.match(/https:\/\/[^\s"']+/i);
+  const extracted = match ? match[0] : text;
+
+  return extracted.replace(/\/$/, '');
+}
+
+urlInput.addEventListener('input', () => {
+  dot.className = 'status-dot';
+  statusText.textContent = 'checking...';
+  clearTimeout(checkTimer);
+  checkTimer = setTimeout(checkHealth, 800);
+});
+
+async function checkHealth() {
+  const base = normalizeBackendUrl(urlInput.value);
+  if (!base) {
+    statusText.textContent = 'not connected';
+    dot.className = 'status-dot';
+    return;
+  }
+  try {
+    const r = await fetch(base + '/health', {
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+      signal: AbortSignal.timeout(5000)
+    });
+    if (r.ok) {
+      dot.className = 'status-dot ok';
+      statusText.textContent = 'connected ✓';
+    } else {
+      dot.className = 'status-dot err';
+      statusText.textContent = 'error';
+    }
+  } catch {
+    dot.className = 'status-dot err';
+    statusText.textContent = 'unreachable';
+  }
+}
+</script>
+</body>
+</html>
