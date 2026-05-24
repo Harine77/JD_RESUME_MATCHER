@@ -86,13 +86,4 @@ After training, metrics such as accuracy, precision, recall and F1 for all model
 
 ---
 
-## Next Steps
-
-- Replace metric placeholders with your own metrics after training
-- Create a GitHub Actions CI for automated checks/linting
-- Add unit tests for model/endpoint code (`pytest` or similar)
-- Dockerize the backend for easy deployment
-
----
-
 > JD Resume Matcher – Quickly find the best-fit candidates for your jobs, every time.
